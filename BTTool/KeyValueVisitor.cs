@@ -24,10 +24,16 @@ namespace BTTool
                         keyValueNode.SetValue(Encoding.UTF8.GetBytes("somename"));
                     else // 列表项，通常是文件名
                     {
-                        string value = ((ListItemNode)keyValueNode.Child[0]).Value;
-                        int startIndex = value.LastIndexOf(".");
-                        value = String.Format("{0}.{1}", "somename", value.Substring(startIndex+1));
-                        ((ListItemNode)keyValueNode.Child[0]).SetValue(Encoding.UTF8.GetBytes(value));
+                        foreach (ListItemNode node in keyValueNode.Child)
+                        {
+                            string value = node.Value;
+                            int startIndex = value.LastIndexOf(".");
+                            if (startIndex < 0)
+                                value = "somename";
+                            else
+                                value = String.Format("{0}.{1}", "somename", value.Substring(startIndex + 1));
+                            node.SetValue(Encoding.UTF8.GetBytes(value));
+                        }
                     }
                     break;
                 }

@@ -95,7 +95,17 @@ namespace BTTool
         private void ConstructTree(TreeNode tParent, IBNode bParent)
         {
             tParent.Tag = bParent;
+            //tParent.ToolTipText = bParent as 
+            
             tParent.Text = bParent.ToString();
+            if (bParent is KeyValueNode)
+            {
+                tParent.Text += "KeyValueNode";
+            }
+            else if (bParent is ListItemNode)
+            {
+                tParent.Text += "ListItemNode";
+            }
             bParent.Child.ForEach(bNode =>
             {
                 TreeNode tNode = new TreeNode();
