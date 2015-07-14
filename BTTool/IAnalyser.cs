@@ -8,6 +8,6 @@ namespace BTTool
     interface IAnalyser
     {
         List<IBNode> BNodeList { get; set; }
-        IBNode Analysis(byte[] torrentStream);
+        IBNode Analyse(byte[] torrentStream);
     }
 }

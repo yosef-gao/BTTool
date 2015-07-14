@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TorrentFile.cs" />
     <EmbeddedResource Include="BatchConverseForm.resx">
       <DependentUpon>BatchConverseForm.cs</DependentUpon>
     </EmbeddedResource>

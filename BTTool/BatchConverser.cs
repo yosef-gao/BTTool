@@ -13,7 +13,6 @@ namespace BTTool
     {
         private List<FileInfo> _sourFilenameList;
         private string _destFolder;
-
         private Action<string> _callBackFunc;
 
         public BatchConverser(string sourceFolder, string destFolder, Action<string> callBackFunc)
@@ -38,45 +37,17 @@ namespace BTTool
             IAnalyser btAnalyser = new CommonAnalyser();
             foreach (FileInfo fInfo in _sourFilenameList)
             {
-                byte[] buffer = null;
-                using (FileStream stream = new FileStream(fInfo.FullName, FileMode.Open))
-                {
-                    buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, (int)stream.Length);
-                }
-                // 分析
-                IBNode rootNode = btAnalyser.Analysis(buffer);
-                // 转换
-                Iterate(btAnalyser.BNodeList);
-                // 生成新的文件名
+                if (!fInfo.Extension.Equals(".torrent"))
+                    continue; // 过滤非BT文件
+                TorrentFile torrentFile = new TorrentFile();
+                torrentFile.OpenFile(fInfo.FullName);
+                torrentFile.Modify();
                 string newFilename = String.Format("{0}\\{1}", _destFolder, fInfo.Name);
-                // 保存
-                buffer = rootNode.ToBytes();
-                using (FileStream stream = new FileStream(newFilename, FileMode.Create))
-                {
-                    stream.Write(buffer, 0, buffer.Length);
-                }
+                torrentFile.SaveFile(newFilename);
             }
 
             if (_callBackFunc != null)
                 _callBackFunc(String.Format("转换完毕， 总用时{0} 秒", (Environment.TickCount - tick) / 1000.0));
-        }
-
-        /// <summary>
-        /// 给定一个bnode列表，转换其中的bnode
-        /// </summary>
-        /// <param name="bNodeList"></param>
-        public static void Iterate(List<IBNode> bNodeList)
-        {
-            KeyValueVisitor visitor = new KeyValueVisitor();
-            bNodeList.ForEach(node =>
-            {
-                // 如果是一个KeyValue Node
-                if (node is KeyValueNode)
-                {
-                    (node as KeyValueNode).Accept(visitor);
-                }
-            });
         }
     }
 }

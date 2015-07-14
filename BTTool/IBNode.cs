@@ -26,5 +26,16 @@ namespace BTTool
         /// 子节点
         /// </summary>
         List<IBNode> Child { get; set; }
+
+        /// <summary>
+        /// 与其绑定的树节点
+        /// </summary>
+        Object BindObject { get; set; }
+
+        /// <summary>
+        /// 设置值的字节表示，用于编码转换
+        /// </summary>
+        /// <param name="value"></param>
+        void SetValue(byte[] value);
     }
 }

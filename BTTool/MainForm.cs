@@ -15,8 +15,7 @@ namespace BTTool
     {
         private string[] args;
         private string _filename;
-        private IAnalyser _btAnalyser;
-        private IBNode rootNode;
+        private TorrentFile _torrentFile = null;
 
         public MainForm(string[] args)
         {
@@ -43,77 +42,31 @@ namespace BTTool
                 if (new FileInfo(filename).Extension.Equals(".torrent"))
                 {
                     _filename = filename;
-                    AnalysisBt(_filename);
-                    //Console.WriteLine(filename);
+                    AnalyseBt(_filename);
                     return;
                 }
             }
         }
 
-        private void AnalysisBt(string filename)
+        private void AnalyseBt(string filename)
         {
             SetLogger(BTToolLogger.Start('f', filename));
-
-            // 清理上一次的工作
-            treeView.Nodes.Clear();
-            _btAnalyser = new CommonAnalyser();
-            rootNode = null;
-
-            // 读入BT文件
-            byte[] buffer = null;
-            using (FileStream stream = new FileStream(filename, FileMode.Open))
-            {
-                buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, (int)stream.Length);
-            }
-
-            // 解析
-            IBNode rootBNode = null;
+            _torrentFile = new TorrentFile();
             try
             {
-                rootBNode = this._btAnalyser.Analysis(buffer);
-                rootNode = rootBNode;
+                _torrentFile.OpenFile(filename);
             }
             catch
             {
                 SetLogger(BTToolLogger.Start('e', filename));
-                tabControl.SelectedIndex = 1;
-                filename = null;
-                return;
             }
             SetLogger(BTToolLogger.End('f'));
-
             SetLogger(BTToolLogger.Start('s'));
-            // 构建树
-            TreeNode rootTNode = new TreeNode();
-            ConstructTree(rootTNode, rootBNode);
-            rootTNode.Expand();
-            treeView.Nodes.Add(rootTNode);
+            TreeNode rootNode = _torrentFile.RootNode;
+            rootNode.Expand();
+            treeView.Nodes.Clear();
+            treeView.Nodes.Add(rootNode);
             SetLogger(BTToolLogger.End('s'));
-        }
-
-        private void ConstructTree(TreeNode tParent, IBNode bParent)
-        {
-            tParent.Tag = bParent;
-            tParent.Text = bParent.ToString();
-            bParent.Child.ForEach(bNode =>
-            {
-                TreeNode tNode = new TreeNode();
-                tNode.Text = bNode.ToString();
-                tNode.Tag = bNode;
-                tParent.Nodes.Add(tNode);
-                ConstructTree(tNode, bNode);
-            });
-        }
-
-        private void RefreshTree(TreeNode parent)
-        {
-            parent.Text = ((IBNode)parent.Tag).ToString();
-            foreach (TreeNode node in parent.Nodes)
-            {
-                node.Text = ((IBNode)node.Tag).ToString();
-                RefreshTree(node);
-            }
         }
 
         private void openOToolStripMenuItem_Click(object sender, EventArgs e)
@@ -124,7 +77,7 @@ namespace BTTool
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _filename = ofd.FileName;
-                AnalysisBt(ofd.FileName);
+                AnalyseBt(ofd.FileName);
             }
         }
 
@@ -137,11 +90,7 @@ namespace BTTool
         {
             if (_filename != null)
             {
-                SetLogger(BTToolLogger.Start('r'));
-                BatchConverser.Iterate(_btAnalyser.BNodeList);
-                RefreshTree(treeView.Nodes[0]);
-                treeView.Refresh();
-                SetLogger(BTToolLogger.End('r'));
+                _torrentFile.Modify();
             }
         }
 
@@ -157,13 +106,7 @@ namespace BTTool
 
         private void SaveBt(string filename)
         {
-            if (rootNode == null)
-                return;
-            using (FileStream stream = new FileStream(filename, FileMode.Create))
-            {
-                byte[] buffer = rootNode.ToBytes();
-                stream.Write(buffer, 0, buffer.Length);
-            }
+            _torrentFile.SaveFile(filename);
         }
 
         private void SetLogger(string message)
@@ -185,7 +128,6 @@ namespace BTTool
             BatchConverseForm bcf = new BatchConverseForm();
             if (bcf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                // Console.WriteLine(bcf.SourceFolder + " " + bcf.DestFolder);
                 // 异步处理
                 SetLogger(BTToolLogger.Start('b'));
                 BatchConverser bc = new BatchConverser(bcf.SourceFolder, bcf.DestFolder, ShowCallBackMessage);
@@ -199,7 +141,7 @@ namespace BTTool
             if (args.Length != 0)
             {
                 _filename = args[0];
-                AnalysisBt(args[0]);
+                AnalyseBt(args[0]);
             }
         }
     }
