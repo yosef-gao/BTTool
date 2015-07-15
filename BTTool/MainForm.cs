@@ -91,6 +91,10 @@ namespace BTTool
             if (_filename != null)
             {
                 _torrentFile.Modify();
+                treeView.Nodes.Clear();
+                var rootNode = _torrentFile.RootNode;
+                rootNode.Expand();
+                treeView.Nodes.Add(rootNode);
             }
         }
 

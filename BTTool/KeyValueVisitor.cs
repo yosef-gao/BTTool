@@ -22,7 +22,7 @@ namespace BTTool
                 {
                     // 普通键值对
                     if (keyValueNode.Child.Count == 0)
-                        SetValue(keyValueNode, "somename"); //keyValueNode.SetValue(Encoding.UTF8.GetBytes("somename"));
+                        keyValueNode.SetValue(Encoding.UTF8.GetBytes("somename"));
                     else // 列表项，通常是文件名
                     {
                         foreach (ListItemNode node in keyValueNode.Child)
@@ -33,24 +33,12 @@ namespace BTTool
                                 value = "somename";
                             else
                                 value = String.Format("{0}.{1}", "somename", value.Substring(startIndex + 1));
-                            SetValue(node, value); //node.SetValue(Encoding.UTF8.GetBytes(value));
+                            node.SetValue(Encoding.UTF8.GetBytes(value));
                         }
                     }
                     break;
                 }
             }
-        }
-
-        private void SetValue(IBNode node, string value)
-        {
-            node.SetValue(Encoding.UTF8.GetBytes(value));
-            // 通知绑定的控件修改
-            if (node.BindObject != null)
-            {
-                var treeNode = node.BindObject as TreeNode;
-                treeNode.Text = node.ToString();
-                treeNode.BackColor = System.Drawing.Color.LightGreen; // 用绿色标记了修改的部分
-            }     
         }
     }
 }

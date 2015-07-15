@@ -21,15 +21,12 @@ namespace BTTool
 
         private void ConstructTree(TreeNode tParent, IBNode bParent)
         {
-            bParent.BindObject = tParent;
             tParent.Text = bParent.ToString();
             bParent.Child.ForEach(bNode =>
             {
                 TreeNode tNode = new TreeNode();
                 _treeNodeList.Add(tNode);
                 tNode.Text = bNode.ToString();
-                //tNode.Tag = bNode;
-                bNode.BindObject = tNode;
                 tParent.Nodes.Add(tNode);
                 ConstructTree(tNode, bNode);
             });
@@ -113,6 +110,8 @@ namespace BTTool
                     node.Accept(visitor);
                 }
             }
+
+            _tRootNode = null;
         }
     }
 }

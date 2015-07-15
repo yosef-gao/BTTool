@@ -107,7 +107,5 @@ namespace BTTool
 
 
         public List<IBNode> Child { get; set; }
-
-        public Object BindObject { get; set; }
     }
 }
