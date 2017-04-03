@@ -98,17 +98,40 @@ namespace BTTool
             }
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "种子文件(*.torrent)|*.torrent";
-            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                SaveBt(sfd.FileName);
-            }
-        }
+		private void toolStripMenuItem1_Click(object sender, EventArgs e)
+		{
+			using (var sfd = new SaveFileDialog())
+			{
+				sfd.Filter = "种子文件(*.torrent)|*.torrent";
+				if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
+					var fn = sfd.FileName;
+					SaveBt(fn);
+					SaveNamesText(fn);
+				}
+			}
+		}
 
-        private void SaveBt(string filename)
+		/// <summary>
+		/// 写入同名的名称对照列表。
+		/// </summary>
+		/// <param name="fn"></param>
+		private void SaveNamesText(string torrentFileName)
+		{
+			if (String.IsNullOrEmpty(torrentFileName))
+			{
+				//.
+			}
+			else
+			{
+				var ext = Path.GetExtension(torrentFileName);
+				var newName = torrentFileName.Substring(0, torrentFileName.Length - ext.Length) + ".txt";
+				var nameList = KeyValueVisitor.NameTable.ToString();
+				File.WriteAllText(newName, nameList);
+			}
+		}
+
+		private void SaveBt(string filename)
         {
             _torrentFile.SaveFile(filename);
         }
