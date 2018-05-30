@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace BTTool
@@ -18,11 +19,12 @@ namespace BTTool
             string key = keyValueNode.Key;
             foreach (string name in tabooString)
             {
+                var newname = Regex.Replace(Guid.NewGuid().ToString(), "-", "");
                 if (key.Equals(name))
                 {
                     // 普通键值对
                     if (keyValueNode.Child.Count == 0)
-                        keyValueNode.SetValue(Encoding.UTF8.GetBytes("somename"));
+                        keyValueNode.SetValue(Encoding.UTF8.GetBytes(newname));
                     else // 列表项，通常是文件名
                     {
                         foreach (ListItemNode node in keyValueNode.Child)
@@ -30,9 +32,9 @@ namespace BTTool
                             string value = node.Value;
                             int startIndex = value.LastIndexOf(".");
                             if (startIndex < 0)
-                                value = "somename";
+                                value = newname;
                             else
-                                value = String.Format("{0}.{1}", "somename", value.Substring(startIndex + 1));
+                                value = String.Format("{0}.{1}", newname, value.Substring(startIndex + 1));
                             node.SetValue(Encoding.UTF8.GetBytes(value));
                         }
                     }
